@@ -1,16 +1,44 @@
 import { StyleSheet } from 'react-native';
-
+import api from '../Api';
 import EditScreenInfo from '../components/EditScreenInfo';
 import { Text, View } from '../components/Themed';
 import { RootTabScreenProps } from '../types';
+import { useEffect,useState } from 'react';
+
+
 
 export default function TabOneScreen({ navigation }: RootTabScreenProps<'TabOne'>) {
+
+  const [clientes, setClientes] = useState<{razao_social:string,endereco:string,lat:number,lng:number}[]>([])
+
+
+   function getData() {
+    api.get('/clientes')
+    .then(function(res){
+      
+      setClientes(res.data)
+    })
+    .catch(function(error){
+      alert(error.message)
+    })
+    
+  }
+  
+  useEffect(() => {
+    getData();
+  }, [])
+
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>pedro te amo</Text>
-      <View style={styles.separator} lightColor="#eee" darkColor="rgba(255,255,255,0.1)" />
-      <EditScreenInfo path="/screens/TabOneScreen.tsx" />
+      {clientes.map((cliente,index)=>{
+        return(
+          <Text style={styles.title}>{cliente.razao_social}</Text>
+        )
+      })}
+
+      
     </View>
+
   );
 }
 

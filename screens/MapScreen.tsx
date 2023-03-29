@@ -1,4 +1,5 @@
-import React, {useState} from 'react';
+import React, {useState,useEffect} from 'react';
+import api from '../Api';
 import Dialog from 'react-native-dialog';
 import MapView, {Marker, Callout, MarkerPressEvent} from 'react-native-maps';
 import { StyleSheet } from 'react-native';
@@ -10,17 +11,31 @@ export default function MapScreen(this: any) {
   const [lat, setLatitude] = useState(-22.91387958710525)
   const [long, setLongitude] = useState(-47.068131631428884)
 
+  function getData() {
+    api.get('/clientes')
+    .then(function(res){
+      
+      setClientes(res.data)
+
+    })
+    .catch(function(error){
+      alert(error.message)
+    })
+    
+  }
+  
+  useEffect(() => {
+    getData();
+  }, [])
+
+
   let coord : LatLng = {latitude: 0, longitude: 0};
   const [coordenadas, setCoordenadas] = useState(coord)
   const [visible, setVisible] = useState(false)
   const [nome, setNome] = useState('')
 
-  const [lista, setLista] = useState(
-    [{lat: -22.896875688928752,long: -47.11146552703074, nome: 'bosch'},
-    {lat: -22.91387958710525, long: -47.068131631428884, nome: 'senai'},
-    {lat: -22.850590745952736, long:  -47.231195788477336, nome: 'ifsp'},
-    {lat:-22.858229699890725, long: -47.20148198835639, nome: 'casa'},
-    {lat: -22.85520918203911, long:  -47.224505384778055,nome: 'academia'}])
+
+  const [clientes, setClientes] = useState<{razao_social:string,endereco:string,lat:number,lng:number}[]>([])
   
   const addMarcador = (e : LatLng) => {
     setCoordenadas(e)
@@ -32,46 +47,46 @@ export default function MapScreen(this: any) {
   }
 
   const deletarMarcador = (e : MarkerPressEvent) => {
-    alert(e.nativeEvent.coordinate.longitude)
-    let novaLista = [...lista as any]
+    let novaLista = [...clientes as any]
     let posicaoItem = novaLista.findIndex(x => x.lat = e.nativeEvent.coordinate.latitude && 
       x.long == e.nativeEvent.coordinate.longitude)
     novaLista.splice(posicaoItem, 1)
 
-    setLista(novaLista)
+    setClientes(novaLista)
   }
 
   const handleOk = () => {
-    let novaLista = [... lista as any]
+    let novaLista = [... clientes as any]
     novaLista.push({
       lat: coordenadas.latitude,
       long: coordenadas.longitude,
       nome: nome
     })
-    setLista(novaLista)
-    setVisible
+    setClientes(novaLista)
+    setVisible(false)
   }
   
     return (
     
     <View style={styles.container}>
       <MapView style={styles.map}
-        // initialRegion={{
-        //   latitude: lat,
-        //   longitude: long,
-        //   latitudeDelta: 0.003,
-        //   longitudeDelta: 0.003,
-        // }}
+        initialRegion={{
+          latitude: lat,
+          longitude: long,
+          latitudeDelta: 0.003,
+          longitudeDelta: 0.003,
+        }}
       onPress={e => addMarcador(e.nativeEvent.coordinate)}
         >
           
 
-      {lista.map((local) => (
+      {clientes.map((local) => (
         <Marker 
-        key={local.nome}
-        coordinate={{latitude: local.lat, longitude: local.long}}
-        title={local.nome}
-        onPress={e => deletarMarcador(e)}
+        key={local.razao_social}
+        coordinate={{latitude: local.lat, longitude: local.lng}}
+        title={local.razao_social}
+        onTouchCancel={e => deletarMarcador(e)}
+        
         >
         </Marker>
       ))}

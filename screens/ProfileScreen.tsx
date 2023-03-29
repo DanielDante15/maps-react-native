@@ -7,7 +7,7 @@ import { RootTabScreenProps } from '../types';
 export default function Profile() {
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>pedro profile</Text>
+      <Text style={styles.title}>Perfil de Usuário</Text>
     </View>
   );
 }
