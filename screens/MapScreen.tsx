@@ -14,9 +14,7 @@ export default function MapScreen(this: any) {
   function getData() {
     api.get('/clientes')
     .then(function(res){
-      
       setClientes(res.data)
-
     })
     .catch(function(error){
       alert(error.message)
@@ -35,7 +33,7 @@ export default function MapScreen(this: any) {
   const [nome, setNome] = useState('')
 
 
-  const [clientes, setClientes] = useState<{razao_social:string,endereco:string,lat:number,lng:number}[]>([])
+  const [clientes, setClientes] = useState<{id: number, razao_social:string,endereco:string,lat:number,lng:number}[]>([])
   
   const addMarcador = (e : LatLng) => {
     setCoordenadas(e)
@@ -49,25 +47,30 @@ export default function MapScreen(this: any) {
   const deletarMarcador = (e : MarkerPressEvent) => {
     let novaLista = [...clientes as any]
     let posicaoItem = novaLista.findIndex(x => x.lat = e.nativeEvent.coordinate.latitude && 
-      x.long == e.nativeEvent.coordinate.longitude)
+      x.lng == e.nativeEvent.coordinate.longitude)
+    console.log(novaLista[posicaoItem].id)
+    let id = novaLista[posicaoItem].id
     novaLista.splice(posicaoItem, 1)
-
     setClientes(novaLista)
+    api.delete(`/clientes/${id}`, {  data: {
+      id: id,
+  }}).then((res) => {
+      console.log(res.data)
+    })
   }
-
   const handleOk = () => {
     let novaLista = [... clientes as any]
     novaLista.push({
       lat: coordenadas.latitude,
       long: coordenadas.longitude,
       nome: nome
+
     })
     setClientes(novaLista)
     setVisible(false)
   }
   
     return (
-    
     <View style={styles.container}>
       <MapView style={styles.map}
         initialRegion={{
@@ -85,7 +88,7 @@ export default function MapScreen(this: any) {
         key={local.razao_social}
         coordinate={{latitude: local.lat, longitude: local.lng}}
         title={local.razao_social}
-        onTouchCancel={e => deletarMarcador(e)}
+        onPress={e => deletarMarcador(e)}
         
         >
         </Marker>

@@ -15,7 +15,6 @@ export default function TabOneScreen({ navigation }: RootTabScreenProps<'TabOne'
    function getData() {
     api.get('/clientes')
     .then(function(res){
-      
       setClientes(res.data)
     })
     .catch(function(error){
