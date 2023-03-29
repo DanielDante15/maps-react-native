@@ -5,13 +5,9 @@ import { Text, View } from '../components/Themed';
 import { RootTabScreenProps } from '../types';
 import { useEffect,useState } from 'react';
 
-
-
 export default function TabOneScreen({ navigation }: RootTabScreenProps<'TabOne'>) {
 
   const [clientes, setClientes] = useState<{razao_social:string,endereco:string,lat:number,lng:number}[]>([])
-
-
    function getData() {
     api.get('/clientes')
     .then(function(res){
@@ -31,7 +27,7 @@ export default function TabOneScreen({ navigation }: RootTabScreenProps<'TabOne'
     <View style={styles.container}>
       {clientes.map((cliente,index)=>{
         return(
-          <Text style={styles.title}>{cliente.razao_social}</Text>
+          <Text key={cliente.razao_social} style={styles.title}>{cliente.razao_social}</Text>
         )
       })}
 

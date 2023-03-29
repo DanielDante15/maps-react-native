@@ -48,24 +48,23 @@ export default function MapScreen(this: any) {
     let novaLista = [...clientes as any]
     let posicaoItem = novaLista.findIndex(x => x.lat = e.nativeEvent.coordinate.latitude && 
       x.lng == e.nativeEvent.coordinate.longitude)
-    console.log(novaLista[posicaoItem].id)
-    let id = novaLista[posicaoItem].id
+    let id:number = novaLista[posicaoItem].id
+    console.log(id)
     novaLista.splice(posicaoItem, 1)
     setClientes(novaLista)
-    api.delete(`/clientes/${id}`, {  data: {
-      id: id,
-  }}).then((res) => {
-      console.log(res.data)
+    api.delete(`/clientes/${id}`).then((res) => {
+      // console.log(res.data)
     })
   }
   const handleOk = () => {
     let novaLista = [... clientes as any]
     novaLista.push({
+      razao_social:nome,
+      endereco:"dfg",
       lat: coordenadas.latitude,
-      long: coordenadas.longitude,
-      nome: nome
-
+      lng: coordenadas.longitude,
     })
+    api.post('/clientes/', novaLista[novaLista.length - 1])
     setClientes(novaLista)
     setVisible(false)
   }
@@ -81,15 +80,12 @@ export default function MapScreen(this: any) {
         }}
       onPress={e => addMarcador(e.nativeEvent.coordinate)}
         >
-          
-
       {clientes.map((local) => (
         <Marker 
         key={local.razao_social}
         coordinate={{latitude: local.lat, longitude: local.lng}}
         title={local.razao_social}
         onPress={e => deletarMarcador(e)}
-        
         >
         </Marker>
       ))}
