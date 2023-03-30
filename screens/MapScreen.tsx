@@ -5,6 +5,7 @@ import MapView, {Marker, Callout, MarkerPressEvent} from 'react-native-maps';
 import { StyleSheet } from 'react-native';
 import {Text, View} from "../components/Themed";
 import { LatLng } from 'react-native-maps';
+import axios from 'axios'
 
 export default function MapScreen(this: any) {
 
@@ -48,24 +49,55 @@ export default function MapScreen(this: any) {
     let novaLista = [...clientes as any]
     let posicaoItem = novaLista.findIndex(x => x.lat = e.nativeEvent.coordinate.latitude && 
       x.lng == e.nativeEvent.coordinate.longitude)
-    let id:number = novaLista[posicaoItem].id
+    let id = novaLista[posicaoItem].id
     console.log(id)
     novaLista.splice(posicaoItem, 1)
     setClientes(novaLista)
-    api.delete(`/clientes/${id}`).then((res) => {
-      // console.log(res.data)
+    const headers= {
+      "Content-Type":"application/json",
+      
+  }
+  let ax = axios;
+  var config = {
+    headers: {
+      "Content-Type":"application/json",
+        'User-Agent':'',
+        'Accept':'',
+        // 'Host':'*'
+    }
+};
+//   ax.request({
+//     method: 'DELETE',
+//     baseURL: 'http://192.168.56.1:8000/clientes/' + id,
+//     headers: {
+//       "Content-Type":"application/json",
+//     },
+//     data: {id: 1}
+// }).then((res) => console.log(res.data)).catch((e) => console.log(e));
+
+    axios.delete(`http://192.168.56.1:8000/clientes/${id}`, config).then((res) => {
+    }).catch((e) => {
+      console.log("AAA")
+      console.log(e)
     })
+    // api.delete(`/clientes/1`).then((res) => {
+    // })
   }
   const handleOk = () => {
-    let novaLista = [... clientes as any]
-    novaLista.push({
-      razao_social:nome,
+    // let novaLista = [... clientes as any]
+    // novaLista.push({
+    //   razao_social:nome,
+    //   endereco:"dfg",
+    //   lat: coordenadas.latitude,
+    //   lng: coordenadas.longitude,
+    // })
+    api.post('/clientes/',{ razao_social:nome,
       endereco:"dfg",
       lat: coordenadas.latitude,
-      lng: coordenadas.longitude,
-    })
-    api.post('/clientes/', novaLista[novaLista.length - 1])
-    setClientes(novaLista)
+      lng: coordenadas.longitude,} )
+
+    getData()
+    // setClientes(novaLista)
     setVisible(false)
   }
   
