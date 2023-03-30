@@ -52,8 +52,13 @@ export default function MapScreen(this: any) {
     console.log(id)
     novaLista.splice(posicaoItem, 1)
     setClientes(novaLista)
-    api.delete(`/clientes/${id}`).then((res) => {
-      // console.log(res.data)
+    const headers={
+      "Content-Type":"application/json",
+  }
+    api.delete(`/clientes/${id}`,{headers:headers}).then((res) => {
+      console.log(res.data)
+    }).catch((err)=>{
+      console.log(err)
     })
   }
   const handleOk = () => {
