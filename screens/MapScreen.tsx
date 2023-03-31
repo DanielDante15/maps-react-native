@@ -12,15 +12,22 @@ export default function MapScreen(this: any) {
   const [lat, setLatitude] = useState(-22.91387958710525)
   const [long, setLongitude] = useState(-47.068131631428884)
   const GOOGLE_MAPS_APIKEY = 'AIzaSyAsYdGzyVfnKpkKIw5GJQzoaveZfswRlsU';
+  let coord: LatLng = { latitude: 0, longitude: 0 };
+  const [coordenadas, setCoordenadas] = useState(coord)
+  const [visible, setVisible] = useState(false)
+  const [clientes, setClientes] = useState<{ id: number, razao_social: string, lat: number, lng: number }[]>([])
+  const [nome, setNome] = useState('')
+  const [origin, setOrigin] = useState({latitude:1,longitude:1})
+  const [destination, setDestination] = useState({latitude:1,longitude:1})
 
   function getData() {
     api.get('/clientes')
       .then(function (res) {
         setClientes(res.data)
-        setOrigin({
-          latitude: clientes[0].lat,
-          longitude: clientes[0].lng
-        })
+        // setOrigin({
+        //   latitude: clientes[0].lat,
+        //   longitude: clientes[0].lng
+        // })
         
       })
       .catch(function (error) {
@@ -32,23 +39,33 @@ export default function MapScreen(this: any) {
     getData();
   }, [])
 
-  let coord: LatLng = { latitude: 0, longitude: 0 };
-  const [coordenadas, setCoordenadas] = useState(coord)
-  const [visible, setVisible] = useState(false)
-  const [clientes, setClientes] = useState<{ id: number, razao_social: string, lat: number, lng: number }[]>([])
-  const [nome, setNome] = useState('')
-  const [origin, setOrigin] = useState({latitude:1,longitude:1})
-  const [destination, setDestination] = useState({latitude:1,longitude:1})
+  
 
-
+  function renderRoutes(){
+    return(
+      <MapViewDirections
+          origin={origin}
+          strokeWidth={3}
+          strokeColor='blue'
+          waypoints={[]}
+          destination={destination}
+          apikey={GOOGLE_MAPS_APIKEY}
+        />
+    )
+  }
 
   const addMarcador = (e: LatLng) => {
     setCoordenadas(e)
     setVisible(true)
+    setOrigin({
+      latitude: clientes[0].lat,
+      longitude: clientes[0].lng
+    })
     setDestination({
       latitude: clientes[clientes.length - 1].lat,
       longitude: clientes[clientes.length - 1].lng
     })
+    renderRoutes()
   }
 
   const handleControl = () => {
@@ -82,6 +99,15 @@ export default function MapScreen(this: any) {
     })
     api.post('/clientes/', novaLista[novaLista.length - 1])
     setClientes(novaLista)
+    setOrigin({
+      latitude: clientes[0].lat,
+      longitude: clientes[0].lng
+    })
+    setDestination({
+      latitude: clientes[clientes.length - 1].lat,
+      longitude: clientes[clientes.length - 1].lng
+    })
+    renderRoutes()
     setVisible(false)
   }
 
@@ -107,14 +133,7 @@ export default function MapScreen(this: any) {
           </Marker>
         ))}
 
-{clientes.length >=2 ?<MapViewDirections
-          origin={origin}
-          strokeWidth={3}
-          strokeColor='blue'
-          waypoints={[]}
-          destination={destination}
-          apikey={GOOGLE_MAPS_APIKEY}
-        />:null}
+{clientes.length >=2 ?renderRoutes():null}
         
 
       </MapView>
