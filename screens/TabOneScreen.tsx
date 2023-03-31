@@ -7,7 +7,7 @@ import { useEffect,useState } from 'react';
 
 export default function TabOneScreen({ navigation }: RootTabScreenProps<'TabOne'>) {
 
-  const [clientes, setClientes] = useState<{razao_social:string,endereco:string,lat:number,lng:number}[]>([])
+  const [clientes, setClientes] = useState<{razao_social:string,lat:number,lng:number}[]>([])
    function getData() {
     api.get('/clientes')
     .then(function(res){

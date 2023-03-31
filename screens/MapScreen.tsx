@@ -1,71 +1,82 @@
-import React, {useState,useEffect} from 'react';
+import React, { useState, useEffect } from 'react';
 import api from '../Api';
 import Dialog from 'react-native-dialog';
-import MapView, {Marker, Callout, MarkerPressEvent} from 'react-native-maps';
+import MapView, { Marker, Callout, MarkerPressEvent } from 'react-native-maps';
 import { StyleSheet } from 'react-native';
-import {Text, View} from "../components/Themed";
+import { Text, View } from "../components/Themed";
 import { LatLng } from 'react-native-maps';
+import MapViewDirections from 'react-native-maps-directions';
 
 export default function MapScreen(this: any) {
 
   const [lat, setLatitude] = useState(-22.91387958710525)
   const [long, setLongitude] = useState(-47.068131631428884)
+  const GOOGLE_MAPS_APIKEY = 'AIzaSyAsYdGzyVfnKpkKIw5GJQzoaveZfswRlsU';
 
   function getData() {
     api.get('/clientes')
-    .then(function(res){
-      setClientes(res.data)
-    })
-    .catch(function(error){
-      alert(error.message)
-    })
-    
+      .then(function (res) {
+        setClientes(res.data)
+        setOrigin({
+          latitude: clientes[0].lat,
+          longitude: clientes[0].lng
+        })
+        
+      })
+      .catch(function (error) {
+        alert(error.message)
+      })
   }
-  
+
   useEffect(() => {
     getData();
   }, [])
 
-
-  let coord : LatLng = {latitude: 0, longitude: 0};
+  let coord: LatLng = { latitude: 0, longitude: 0 };
   const [coordenadas, setCoordenadas] = useState(coord)
   const [visible, setVisible] = useState(false)
+  const [clientes, setClientes] = useState<{ id: number, razao_social: string, lat: number, lng: number }[]>([])
   const [nome, setNome] = useState('')
+  const [origin, setOrigin] = useState({latitude:1,longitude:1})
+  const [destination, setDestination] = useState({latitude:1,longitude:1})
 
 
-  const [clientes, setClientes] = useState<{id: number, razao_social:string,endereco:string,lat:number,lng:number}[]>([])
-  
-  const addMarcador = (e : LatLng) => {
+
+  const addMarcador = (e: LatLng) => {
     setCoordenadas(e)
     setVisible(true)
+    setDestination({
+      latitude: clientes[clientes.length - 1].lat,
+      longitude: clientes[clientes.length - 1].lng
+    })
   }
 
   const handleControl = () => {
     setVisible(false);
   }
 
-  const deletarMarcador = (e : MarkerPressEvent) => {
+  const deletarMarcador = (e: MarkerPressEvent) => {
     let novaLista = [...clientes as any]
-    let posicaoItem = novaLista.findIndex(x => x.lat = e.nativeEvent.coordinate.latitude && 
+    let posicaoItem = novaLista.findIndex(x => x.lat = e.nativeEvent.coordinate.latitude &&
       x.lng == e.nativeEvent.coordinate.longitude)
-    let id:number = novaLista[posicaoItem].id
+    let id: number = novaLista[posicaoItem].id
     console.log(id)
     novaLista.splice(posicaoItem, 1)
     setClientes(novaLista)
-    const headers={
-      "Content-Type":"application/json",
-  }
-    api.delete(`/clientes/${id}`,{headers:headers}).then((res) => {
+    const headers = {
+      "Content-Type": "application/json",
+    }
+    api.delete(`/clientes/${id}/`, { headers: headers }).then((res) => {
       console.log(res.data)
-    }).catch((err)=>{
+    }).catch((err) => {
       console.log(err)
     })
   }
   const handleOk = () => {
-    let novaLista = [... clientes as any]
+    let novaLista = [...clientes as any]
     novaLista.push({
-      razao_social:nome,
-      endereco:"dfg",
+      razao_social: nome,
+      endereco: "dfg",
       lat: coordenadas.latitude,
       lng: coordenadas.longitude,
     })
@@ -73,8 +84,9 @@ export default function MapScreen(this: any) {
     setClientes(novaLista)
     setVisible(false)
   }
-  
-    return (
+
+
+  return (
     <View style={styles.container}>
       <MapView style={styles.map}
         initialRegion={{
@@ -83,17 +95,27 @@ export default function MapScreen(this: any) {
           latitudeDelta: 0.003,
           longitudeDelta: 0.003,
         }}
-      onPress={e => addMarcador(e.nativeEvent.coordinate)}
-        >
-      {clientes.map((local) => (
-        <Marker 
-        key={local.razao_social}
-        coordinate={{latitude: local.lat, longitude: local.lng}}
-        title={local.razao_social}
-        onPress={e => deletarMarcador(e)}
-        >
-        </Marker>
-      ))}
+        onPress={e => addMarcador(e.nativeEvent.coordinate)}
+      >
+        {clientes.map((local) => (
+          <Marker
+            key={local.razao_social}
+            coordinate={{ latitude: local.lat, longitude: local.lng }}
+            title={local.razao_social}
+            onPress={e => deletarMarcador(e)}
+          >
+          </Marker>
+        ))}
+
+{clientes.length >=2 ?<MapViewDirections
+          origin={origin}
+          strokeWidth={3}
+          strokeColor='blue'
+          waypoints={[]}
+          destination={destination}
+          apikey={GOOGLE_MAPS_APIKEY}
+        />:null}
+        
 
       </MapView>
 
@@ -103,9 +125,9 @@ export default function MapScreen(this: any) {
           <Dialog.Description>
             Informe abaixo o nome deste marcador
           </Dialog.Description>
-          <Dialog.Input onChange={(e) => setNome(e.nativeEvent.text)}/>
-          <Dialog.Button onPress={() => handleControl()} label="Cancel"/>
-          <Dialog.Button onPress={() => handleOk()} label="Adicionar"/>
+          <Dialog.Input onChange={(e) => setNome(e.nativeEvent.text)} />
+          <Dialog.Button onPress={() => handleControl()} label="Cancel" />
+          <Dialog.Button onPress={() => handleOk()} label="Adicionar" />
         </Dialog.Container>
       </View>
     </View>
