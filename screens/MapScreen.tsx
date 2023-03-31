@@ -71,7 +71,6 @@ export default function MapScreen(this: any) {
   const handleControl = () => {
     setVisible(false);
   }
-
   const deletarMarcador = (e: MarkerPressEvent) => {
     let novaLista = [...clientes as any]
     let posicaoItem = novaLista.findIndex(x => x.lat = e.nativeEvent.coordinate.latitude &&
