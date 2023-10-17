@@ -46,8 +46,8 @@ function RootNavigator() {
     <Stack.Navigator>
       <Stack.Screen name="Root" component={BottomTabNavigator} options={{ headerShown: false }} />
       <Stack.Screen name="NotFound" component={NotFoundScreen} options={{ title: 'Oops!' }} />
-      <Stack.Group screenOptions={{ presentation: 'modal' }}>
-        <Stack.Screen name="Modal" component={ModalScreen} />
+      <Stack.Group screenOptions={{ presentation: 'card' }}>
+        <Stack.Screen name="CadEntrega" component={ModalScreen}  options={{ title: 'Cadastre uma entrega' }} />
       </Stack.Group>
     </Stack.Navigator>
   );
@@ -72,16 +72,17 @@ function BottomTabNavigator() {
         name="TabOne"
         component={TabOneScreen}
         options={({ navigation }: RootTabScreenProps<'TabOne'>) => ({
-          title: 'Tab One',
+          title: 'Entregas',
+          unmountOnBlur:true,
           tabBarIcon: ({ color }) => <TabBarIcon name="home" color={color} />,
           headerRight: () => (
             <Pressable
-              onPress={() => navigation.navigate('Modal')}
+              onPress={() => navigation.navigate('CadEntrega')}
               style={({ pressed }) => ({
                 opacity: pressed ? 0.5 : 1,
               })}>
               <FontAwesome
-                name="info-circle"
+                name="plus"
                 size={25}
                 color={Colors[colorScheme].text}
                 style={{ marginRight: 15 }}
@@ -94,6 +95,7 @@ function BottomTabNavigator() {
         name="MapScreen"
         component={MapScreen}
         options={{
+          unmountOnBlur:true,
           title: 'MapScreen',
           tabBarIcon: ({ color }) => <TabBarIcon name="map" color={color} />,
         }}
@@ -102,16 +104,23 @@ function BottomTabNavigator() {
       name="ProfileScreen"
       component={ProfileScreen}
       options={{
+        unmountOnBlur:true,
         title:'ProfileScreen',
         tabBarIcon: ({ color }) => <TabBarIcon name="account" color={color} />,
       }}/>
+      {/* <BottomTab.Screen
+      name="TabTwo"
+      component={TabTwoScreen}
+      options={{
+        unmountOnBlur:true,
+        title:'TabTwo',
+        tabBarIcon: ({ color }) => <TabBarIcon name="account" color={color} />,
+      }}/> */}
+   
     </BottomTab.Navigator>
   );
 }
 
-/**
- * You can explore the built-in icon families and icons on the web at https://icons.expo.fyi/
- */
 function TabBarIcon(props: {
   name: React.ComponentProps<typeof MaterialCommunityIcons>['name'];
   color: string;
